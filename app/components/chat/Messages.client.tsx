@@ -54,7 +54,8 @@ export const Messages = forwardRef<HTMLDivElement, MessagesProps>(
         {messages.length > 0
           ? messages.map((message, index) => {
               const { role, id: messageId, parts } = message;
-              const content = (message as any).content || '';
+              const content =
+                (message as any).content || (parts?.find((p: any) => p.type === 'text') as any)?.text || '';
               const annotations = (message as any).annotations;
               const isUserMessage = role === 'user';
               const isFirst = index === 0;
