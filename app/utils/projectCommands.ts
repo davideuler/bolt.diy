@@ -1,4 +1,4 @@
-import type { Message } from 'ai';
+import type { Message } from '~/types/message';
 import { generateId } from './fileUtils';
 
 export interface ProjectCommands {
@@ -134,7 +134,7 @@ ${commandString}
 </boltArtifact>`,
     id: generateId(),
     createdAt: new Date(),
-  };
+  } as any;
 }
 
 export function escapeBoltArtifactTags(input: string) {

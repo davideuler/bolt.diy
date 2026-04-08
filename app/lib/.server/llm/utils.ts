@@ -1,4 +1,4 @@
-import { type Message } from 'ai';
+import type { Message } from '~/types/message';
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, MODEL_REGEX, PROVIDER_REGEX } from '~/utils/constants';
 import { IGNORE_PATTERNS, type FileMap } from './constants';
 import ignore from 'ignore';
@@ -9,27 +9,20 @@ export function extractPropertiesFromMessage(message: Omit<Message, 'id'>): {
   provider: string;
   content: string;
 } {
-  const textContent = Array.isArray(message.content)
-    ? message.content.find((item) => item.type === 'text')?.text || ''
-    : message.content;
+  // ai@6 compat: UIMessage uses parts, legacy uses content
+  const msgContent = (message as any).content;
+  const textContent = Array.isArray(msgContent)
+    ? msgContent.find((item: any) => item.type === 'text')?.text || ''
+    : msgContent || (message.parts?.find((p) => p.type === 'text') as any)?.text || '';
 
   const modelMatch = textContent.match(MODEL_REGEX);
   const providerMatch = textContent.match(PROVIDER_REGEX);
 
-  /*
-   * Extract model
-   * const modelMatch = message.content.match(MODEL_REGEX);
-   */
   const model = modelMatch ? modelMatch[1] : DEFAULT_MODEL;
-
-  /*
-   * Extract provider
-   * const providerMatch = message.content.match(PROVIDER_REGEX);
-   */
   const provider = providerMatch ? providerMatch[1] : DEFAULT_PROVIDER.name;
 
-  const cleanedContent = Array.isArray(message.content)
-    ? message.content.map((item) => {
+  const cleanedContent = Array.isArray(msgContent)
+    ? msgContent.map((item: any) => {
         if (item.type === 'text') {
           return {
             type: 'text',
@@ -37,7 +30,7 @@ export function extractPropertiesFromMessage(message: Omit<Message, 'id'>): {
           };
         }
 
-        return item; // Preserve image_url and other types as is
+        return item;
       })
     : textContent.replace(MODEL_REGEX, '').replace(PROVIDER_REGEX, '');
 
@@ -98,12 +91,14 @@ export function extractCurrentContext(messages: Message[]) {
   let summary: ContextAnnotation | undefined;
   let codeContext: ContextAnnotation | undefined;
 
-  if (!lastAssistantMessage.annotations?.length) {
+  const annotations = (lastAssistantMessage as any).annotations;
+
+  if (!annotations?.length) {
     return { summary: undefined, codeContext: undefined };
   }
 
-  for (let i = 0; i < lastAssistantMessage.annotations.length; i++) {
-    const annotation = lastAssistantMessage.annotations[i];
+  for (let i = 0; i < annotations.length; i++) {
+    const annotation = annotations[i];
 
     if (!annotation || typeof annotation !== 'object') {
       continue;

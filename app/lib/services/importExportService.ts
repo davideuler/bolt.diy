@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import { type Message } from 'ai';
+import type { Message } from '~/types/message';
 import { getAllChats, deleteChat } from '~/lib/persistence/chats';
 
 interface ExtendedMessage extends Message {
@@ -33,7 +33,7 @@ export class ImportExportService {
         messages: chat.messages.map((msg: ExtendedMessage) => ({
           id: msg.id,
           role: msg.role,
-          content: msg.content,
+          content: (msg as any).content,
           name: msg.name,
           function_call: msg.function_call,
           timestamp: msg.timestamp,

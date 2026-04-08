@@ -1,6 +1,6 @@
 import ignore from 'ignore';
 import { useGit } from '~/lib/hooks/useGit';
-import type { Message } from 'ai';
+import type { Message } from '~/types/message';
 import { detectProjectCommands, createCommandsMessage, escapeBoltTags } from '~/utils/projectCommands';
 import { generateId } from '~/utils/fileUtils';
 import { useState } from 'react';
@@ -142,7 +142,7 @@ ${escapeBoltTags(file.content)}
 </boltArtifact>`,
           id: generateId(),
           createdAt: new Date(),
-        };
+        } as any;
 
         const messages = [filesMessage];
 

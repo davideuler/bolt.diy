@@ -1,4 +1,5 @@
-import { generateText, type CoreTool, type GenerateTextResult, type Message } from 'ai';
+import { generateText, type GenerateTextResult } from 'ai';
+import type { Message } from '~/types/message';
 import ignore from 'ignore';
 import type { IProviderSetting } from '~/types/model';
 import { IGNORE_PATTERNS, type FileMap } from './constants';
@@ -21,27 +22,27 @@ export async function selectContext(props: {
   promptId?: string;
   contextOptimization?: boolean;
   summary: string;
-  onFinish?: (resp: GenerateTextResult<Record<string, CoreTool<any, any>>, never>) => void;
+  onFinish?: (resp: GenerateTextResult<any, any>) => void;
 }) {
   const { messages, env: serverEnv, apiKeys, files, providerSettings, summary, onFinish } = props;
   let currentModel = DEFAULT_MODEL;
   let currentProvider = DEFAULT_PROVIDER.name;
   const processedMessages = messages.map((message) => {
     if (message.role === 'user') {
-      const { model, provider, content } = extractPropertiesFromMessage(message);
+      const { model, provider, content } = extractPropertiesFromMessage(message as any);
       currentModel = model;
       currentProvider = provider;
 
-      return { ...message, content };
+      return { ...message, content } as any;
     } else if (message.role == 'assistant') {
-      let content = message.content;
+      let content = (message as any).content || '';
 
       content = simplifyBoltActions(content);
 
       content = content.replace(/<div class=\\"__boltThought__\\">.*?<\/div>/s, '');
       content = content.replace(/<think>.*?<\/think>/s, '');
 
-      return { ...message, content };
+      return { ...message, content } as any;
     }
 
     return message;
@@ -107,10 +108,15 @@ export async function selectContext(props: {
 
   const summaryText = `Here is the summary of the chat till now: ${summary}`;
 
-  const extractTextContent = (message: Message) =>
-    Array.isArray(message.content)
-      ? (message.content.find((item) => item.type === 'text')?.text as string) || ''
-      : message.content;
+  const extractTextContent = (message: Message) => {
+    const c = (message as any).content;
+
+    if (c) {
+      return Array.isArray(c) ? (c.find((item: any) => item.type === 'text')?.text as string) || '' : c;
+    }
+
+    return (message.parts?.find((p) => p.type === 'text') as any)?.text ?? '';
+  };
 
   const lastUserMessage = processedMessages.filter((x) => x.role == 'user').pop();
 

@@ -1,4 +1,4 @@
-import type { Message } from 'ai';
+import type { Message } from '~/types/message';
 import { useCallback, useState } from 'react';
 import { EnhancedStreamingMessageParser } from '~/lib/runtime/enhanced-message-parser';
 import { workbenchStore } from '~/lib/stores/workbench';
@@ -49,10 +49,17 @@ const messageParser = new EnhancedStreamingMessageParser({
     },
   },
 });
-const extractTextContent = (message: Message) =>
-  Array.isArray(message.content)
-    ? (message.content.find((item) => item.type === 'text')?.text as string) || ''
-    : message.content;
+const extractTextContent = (message: Message) => {
+  // ai@6: UIMessage uses parts, not content
+  if ((message as any).content) {
+    const c = (message as any).content;
+    return Array.isArray(c) ? (c.find((item: any) => item.type === 'text')?.text as string) || '' : c;
+  }
+
+  const textPart = message.parts?.find((p) => p.type === 'text');
+
+  return (textPart as any)?.text ?? '';
+};
 
 export function useMessageParser() {
   const [parsedMessages, setParsedMessages] = useState<{ [key: number]: string }>({});

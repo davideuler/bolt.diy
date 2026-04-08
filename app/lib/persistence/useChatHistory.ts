@@ -1,7 +1,8 @@
 import { useLoaderData, useNavigate, useSearchParams } from '@remix-run/react';
 import { useState, useEffect, useCallback } from 'react';
 import { atom } from 'nanostores';
-import { generateId, type JSONValue, type Message } from 'ai';
+import { generateId, type JSONValue } from 'ai';
+import type { Message } from '~/types/message';
 import { toast } from 'react-toastify';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { logStore } from '~/lib/stores/logs'; // Import logStore
@@ -122,14 +123,14 @@ export function useChatHistory() {
                 {
                   id: generateId(),
                   role: 'user',
-                  content: `Restore project from snapshot`, // Removed newline
+                  content: `Restore project from snapshot`,
+                  parts: [{ type: 'text', text: `Restore project from snapshot` }],
                   annotations: ['no-store', 'hidden'],
-                },
+                } as any,
                 {
                   id: storedMessages.messages[snapshotIndex].id,
                   role: 'assistant',
 
-                  // Combine followup message and the artifact with files and command actions
                   content: `Bolt Restored your chat from a snapshot. You can revert this message to load the full chat history.
                   <boltArtifact id="restored-project-setup" title="Restored Project & Setup" type="bundled">
                   ${Object.entries(snapshot?.files || {})
@@ -160,7 +161,7 @@ ${value.content}
                         ]
                       : []),
                   ],
-                },
+                } as any,
 
                 // Remove the separate user and assistant messages for commands
                 /*
@@ -279,7 +280,7 @@ ${value.content}
       }
 
       const { firstArtifact } = workbenchStore;
-      messages = messages.filter((m) => !m.annotations?.includes('no-store'));
+      messages = messages.filter((m) => !(m as any).annotations?.includes('no-store'));
 
       let _urlId = urlId;
 
@@ -294,7 +295,7 @@ ${value.content}
       const lastMessage = messages[messages.length - 1];
 
       if (lastMessage.role === 'assistant') {
-        const annotations = lastMessage.annotations as JSONValue[];
+        const annotations = (lastMessage as any).annotations as JSONValue[];
         const filteredAnnotations = (annotations?.filter(
           (annotation: JSONValue) =>
             annotation && typeof annotation === 'object' && Object.keys(annotation).includes('type'),

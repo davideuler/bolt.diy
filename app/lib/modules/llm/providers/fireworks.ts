@@ -1,7 +1,7 @@
 import { BaseProvider } from '~/lib/modules/llm/base-provider';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import type { IProviderSetting } from '~/types/model';
-import type { LanguageModelV1 } from 'ai';
+import type { LanguageModel } from 'ai';
 import { createFireworks } from '@ai-sdk/fireworks';
 
 export default class FireworksProvider extends BaseProvider {
@@ -123,7 +123,7 @@ export default class FireworksProvider extends BaseProvider {
     serverEnv: Env;
     apiKeys?: Record<string, string>;
     providerSettings?: Record<string, IProviderSetting>;
-  }): LanguageModelV1 {
+  }): LanguageModel {
     const { model, serverEnv, apiKeys, providerSettings } = options;
 
     const { apiKey } = this.getProviderBaseUrlAndKey({
@@ -142,6 +142,6 @@ export default class FireworksProvider extends BaseProvider {
       apiKey,
     });
 
-    return fireworks(model);
+    return fireworks(model) as unknown as LanguageModel;
   }
 }

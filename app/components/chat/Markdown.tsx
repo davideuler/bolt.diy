@@ -5,7 +5,7 @@ import { createScopedLogger } from '~/utils/logger';
 import { rehypePlugins, remarkPlugins, allowedHTMLElements } from '~/utils/markdown';
 import { Artifact, openArtifactInWorkbench } from './Artifact';
 import { CodeBlock } from './CodeBlock';
-import type { Message } from 'ai';
+import type { Message } from '~/types/message';
 import styles from './Markdown.module.scss';
 import ThoughtBox from './ThoughtBox';
 import type { ProviderInfo } from '~/types/model';
@@ -158,7 +158,7 @@ export const Markdown = memo(
                         },
                       ] as any,
                       role: 'user',
-                    });
+                    } as any);
                     console.log('Message appended:', message);
                   } else if (type === 'implement' && append && setChatMode) {
                     setChatMode('build');
@@ -171,7 +171,7 @@ export const Markdown = memo(
                         },
                       ] as any,
                       role: 'user',
-                    });
+                    } as any);
                   } else if (type === 'link' && typeof href === 'string') {
                     try {
                       const url = new URL(href, window.location.origin);

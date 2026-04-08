@@ -1,4 +1,4 @@
-import type { Message } from 'ai';
+import type { Message } from '~/types/message';
 import { Fragment } from 'react';
 import { classNames } from '~/utils/classNames';
 import { AssistantMessage } from './AssistantMessage';
@@ -53,7 +53,9 @@ export const Messages = forwardRef<HTMLDivElement, MessagesProps>(
       <div id={id} className={props.className} ref={ref}>
         {messages.length > 0
           ? messages.map((message, index) => {
-              const { role, content, id: messageId, annotations, parts } = message;
+              const { role, id: messageId, parts } = message;
+              const content = (message as any).content || '';
+              const annotations = (message as any).annotations;
               const isUserMessage = role === 'user';
               const isFirst = index === 0;
               const isHidden = annotations?.includes('hidden');
@@ -71,11 +73,11 @@ export const Messages = forwardRef<HTMLDivElement, MessagesProps>(
                 >
                   <div className="grid grid-col-1 w-full">
                     {isUserMessage ? (
-                      <UserMessage content={content} parts={parts} />
+                      <UserMessage content={content} parts={parts as any} />
                     ) : (
                       <AssistantMessage
                         content={content}
-                        annotations={message.annotations}
+                        annotations={annotations}
                         messageId={messageId}
                         onRewind={handleRewind}
                         onFork={handleFork}
@@ -84,7 +86,7 @@ export const Messages = forwardRef<HTMLDivElement, MessagesProps>(
                         setChatMode={props.setChatMode}
                         model={props.model}
                         provider={props.provider}
-                        parts={parts}
+                        parts={parts as any}
                         addToolResult={props.addToolResult}
                       />
                     )}

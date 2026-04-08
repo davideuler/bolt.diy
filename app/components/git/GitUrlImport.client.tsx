@@ -1,5 +1,6 @@
 import { useSearchParams } from '@remix-run/react';
-import { generateId, type Message } from 'ai';
+import { generateId } from 'ai';
+import type { Message } from '~/types/message';
 import ignore from 'ignore';
 import { useEffect, useState } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
@@ -87,7 +88,7 @@ ${escapeBoltTags(file.content)}
 </boltArtifact>`,
             id: generateId(),
             createdAt: new Date(),
-          };
+          } as any;
 
           const messages = [filesMessage];
 
@@ -96,7 +97,7 @@ ${escapeBoltTags(file.content)}
               role: 'user',
               id: generateId(),
               content: 'Setup the codebase and Start the application',
-            });
+            } as any);
             messages.push(commandsMessage);
           }
 

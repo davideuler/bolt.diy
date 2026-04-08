@@ -22,6 +22,8 @@ dist-ssr
 *.sln
 *.sw?
 
+.omc/
+
 /.history
 /.cache
 /build

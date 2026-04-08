@@ -22,8 +22,14 @@ export default function McpServerListItem({ toolName, toolSchema }: McpToolProps
     return null;
   }
 
-  const parameters = (toolSchema.parameters as ToolParameters)?.jsonSchema.properties || {};
-  const requiredParams = (toolSchema.parameters as ToolParameters)?.jsonSchema.required || [];
+  const parameters =
+    ((toolSchema as any).parameters as ToolParameters)?.jsonSchema.properties ||
+    ((toolSchema as any).inputSchema as any)?.properties ||
+    {};
+  const requiredParams =
+    ((toolSchema as any).parameters as ToolParameters)?.jsonSchema.required ||
+    ((toolSchema as any).inputSchema as any)?.required ||
+    [];
 
   return (
     <div className="mt-2 ml-4 p-3 rounded-md bg-bolt-elements-background-depth-2 text-xs">
@@ -38,7 +44,7 @@ export default function McpServerListItem({ toolName, toolSchema }: McpToolProps
           <div className="mt-2.5">
             <h4 className="text-bolt-elements-textSecondary font-semibold mb-1.5">Parameters:</h4>
             <ul className="ml-1 space-y-2">
-              {Object.entries(parameters).map(([paramName, paramDetails]) => (
+              {Object.entries(parameters).map(([paramName, paramDetails]: [string, any]) => (
                 <li key={paramName} className="break-words">
                   <div className="flex items-start">
                     <span className="font-medium text-bolt-elements-textPrimary">

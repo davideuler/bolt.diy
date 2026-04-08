@@ -76,7 +76,7 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
             </original_prompt>
           `,
         },
-      ],
+      ] as any,
       env: context.cloudflare?.env as any,
       apiKeys,
       providerSettings,

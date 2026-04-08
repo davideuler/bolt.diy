@@ -5,16 +5,9 @@ import Popover from '~/components/ui/Popover';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { WORK_DIR } from '~/utils/constants';
 import WithTooltip from '~/components/ui/Tooltip';
-import type { Message } from 'ai';
+import type { Message } from '~/types/message';
 import type { ProviderInfo } from '~/types/model';
-import type {
-  TextUIPart,
-  ReasoningUIPart,
-  ToolInvocationUIPart,
-  SourceUIPart,
-  FileUIPart,
-  StepStartUIPart,
-} from '@ai-sdk/ui-utils';
+import type { TextUIPart, ReasoningUIPart, ToolUIPart, SourceUrlUIPart, FileUIPart, StepStartUIPart } from 'ai';
 import { ToolInvocations } from './ToolInvocations';
 import type { ToolCallAnnotation } from '~/types/context';
 
@@ -29,9 +22,7 @@ interface AssistantMessageProps {
   setChatMode?: (mode: 'discuss' | 'build') => void;
   model?: string;
   provider?: ProviderInfo;
-  parts:
-    | (TextUIPart | ReasoningUIPart | ToolInvocationUIPart | SourceUIPart | FileUIPart | StepStartUIPart)[]
-    | undefined;
+  parts: (TextUIPart | ReasoningUIPart | ToolUIPart | SourceUrlUIPart | FileUIPart | StepStartUIPart)[] | undefined;
   addToolResult: ({ toolCallId, result }: { toolCallId: string; result: any }) => void;
 }
 
@@ -97,7 +88,7 @@ export const AssistantMessage = memo(
       totalTokens: number;
     } = filteredAnnotations.find((annotation) => annotation.type === 'usage')?.value;
 
-    const toolInvocations = parts?.filter((part) => part.type === 'tool-invocation');
+    const toolInvocations = parts?.filter((part) => part.type.startsWith('tool-')) as any;
     const toolCallAnnotations = filteredAnnotations.filter(
       (annotation) => annotation.type === 'toolCall',
     ) as ToolCallAnnotation[];

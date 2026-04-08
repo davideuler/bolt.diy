@@ -1,6 +1,6 @@
 import { BaseProvider } from '~/lib/modules/llm/base-provider';
 import type { ModelInfo } from '~/lib/modules/llm/types';
-import type { LanguageModelV1 } from 'ai';
+import type { LanguageModel } from 'ai';
 import type { IProviderSetting } from '~/types/model';
 import { createAnthropic } from '@ai-sdk/anthropic';
 
@@ -10,37 +10,44 @@ export default class AnthropicProvider extends BaseProvider {
 
   config = {
     apiTokenKey: 'ANTHROPIC_API_KEY',
+    baseUrlKey: 'ANTHROPIC_BASE_URL',
   };
 
   staticModels: ModelInfo[] = [
-    /*
-     * Essential fallback models - only the most stable/reliable ones
-     * Claude 3.5 Sonnet: 200k context, excellent for complex reasoning and coding
-     */
+    // Claude Sonnet 4.6: 200k context, 64k output (latest balanced model)
+    {
+      name: 'claude-sonnet-4-6',
+      label: 'Claude Sonnet 4.6',
+      provider: 'Anthropic',
+      maxTokenAllowed: 200000,
+      maxCompletionTokens: 64000,
+    },
+
+    // Claude Opus 4.6: 200k context, 32k output (latest flagship model)
+    {
+      name: 'claude-opus-4-6',
+      label: 'Claude Opus 4.6',
+      provider: 'Anthropic',
+      maxTokenAllowed: 200000,
+      maxCompletionTokens: 32000,
+    },
+
+    // Claude Haiku 4.5: 200k context, fastest and most cost-effective
+    {
+      name: 'claude-haiku-4-5-20251001',
+      label: 'Claude Haiku 4.5',
+      provider: 'Anthropic',
+      maxTokenAllowed: 200000,
+      maxCompletionTokens: 128000,
+    },
+
+    // Claude 3.5 Sonnet: 200k context, excellent for complex reasoning and coding
     {
       name: 'claude-3-5-sonnet-20241022',
       label: 'Claude 3.5 Sonnet',
       provider: 'Anthropic',
       maxTokenAllowed: 200000,
       maxCompletionTokens: 128000,
-    },
-
-    // Claude 3 Haiku: 200k context, fastest and most cost-effective
-    {
-      name: 'claude-3-haiku-20240307',
-      label: 'Claude 3 Haiku',
-      provider: 'Anthropic',
-      maxTokenAllowed: 200000,
-      maxCompletionTokens: 128000,
-    },
-
-    // Claude Opus 4: 200k context, 32k output limit (latest flagship model)
-    {
-      name: 'claude-opus-4-20250514',
-      label: 'Claude 4 Opus',
-      provider: 'Anthropic',
-      maxTokenAllowed: 200000,
-      maxCompletionTokens: 32000,
     },
   ];
 
@@ -49,11 +56,11 @@ export default class AnthropicProvider extends BaseProvider {
     settings?: IProviderSetting,
     serverEnv?: Record<string, string>,
   ): Promise<ModelInfo[]> {
-    const { apiKey } = this.getProviderBaseUrlAndKey({
+    const { apiKey, baseUrl } = this.getProviderBaseUrlAndKey({
       apiKeys,
       providerSettings: settings,
       serverEnv: serverEnv as any,
-      defaultBaseUrlKey: '',
+      defaultBaseUrlKey: 'ANTHROPIC_BASE_URL',
       defaultApiTokenKey: 'ANTHROPIC_API_KEY',
     });
 
@@ -61,7 +68,8 @@ export default class AnthropicProvider extends BaseProvider {
       throw `Missing Api Key configuration for ${this.name} provider`;
     }
 
-    const response = await fetch(`https://api.anthropic.com/v1/models`, {
+    const modelsUrl = baseUrl ? `${baseUrl}/v1/models` : `https://api.anthropic.com/v1/models`;
+    const response = await fetch(modelsUrl, {
       headers: {
         'x-api-key': `${apiKey}`,
         'anthropic-version': '2023-06-01',
@@ -116,17 +124,18 @@ export default class AnthropicProvider extends BaseProvider {
     serverEnv: Env;
     apiKeys?: Record<string, string>;
     providerSettings?: Record<string, IProviderSetting>;
-  }) => LanguageModelV1 = (options) => {
+  }) => LanguageModel = (options) => {
     const { apiKeys, providerSettings, serverEnv, model } = options;
-    const { apiKey } = this.getProviderBaseUrlAndKey({
+    const { apiKey, baseUrl } = this.getProviderBaseUrlAndKey({
       apiKeys,
       providerSettings,
       serverEnv: serverEnv as any,
-      defaultBaseUrlKey: '',
+      defaultBaseUrlKey: 'ANTHROPIC_BASE_URL',
       defaultApiTokenKey: 'ANTHROPIC_API_KEY',
     });
     const anthropic = createAnthropic({
       apiKey,
+      baseURL: baseUrl,
       headers: { 'anthropic-beta': 'output-128k-2025-02-19' },
     });
 

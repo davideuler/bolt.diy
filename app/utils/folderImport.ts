@@ -1,4 +1,4 @@
-import type { Message } from 'ai';
+import type { Message } from '~/types/message';
 import { generateId } from './fileUtils';
 import { detectProjectCommands, createCommandsMessage, escapeBoltTags } from './projectCommands';
 
@@ -49,14 +49,14 @@ ${escapeBoltTags(file.content)}
 </boltArtifact>`,
     id: generateId(),
     createdAt: new Date(),
-  };
+  } as any;
 
   const userMessage: Message = {
     role: 'user',
     id: generateId(),
     content: `Import the "${folderName}" folder`,
     createdAt: new Date(),
-  };
+  } as any;
 
   const messages = [userMessage, filesMessage];
 
@@ -65,7 +65,7 @@ ${escapeBoltTags(file.content)}
       role: 'user',
       id: generateId(),
       content: 'Setup the codebase and Start the application',
-    });
+    } as any);
     messages.push(commandsMessage);
   }
 
