@@ -330,8 +330,8 @@ LMSTUDIO_BASE_URL=http://127.0.0.1:1234
 ### Supported Providers Overview
 
 #### Cloud Providers
-- **OpenAI** - GPT-4, GPT-3.5, and other OpenAI models
-- **Anthropic** - Claude 3.5 Sonnet, Claude 3 Opus, and other Claude models
+- **OpenAI** - GPT-5.4, GPT-5.4-mini, and other OpenAI models
+- **Anthropic** - Claude Sonnet 4.6, Claude Opus 4.6, and other Claude models
 - **Google (Gemini)** - Gemini 1.5 Pro, Gemini 1.5 Flash, and other Gemini models
 - **Groq** - Fast inference with Llama, Mixtral, and other models
 - **xAI** - Grok models including Grok-2 and Grok-2 Vision
@@ -402,7 +402,7 @@ This method is recommended for developers who want to:
 
 >**Open the WebUI to test (Default: http://localhost:5173)**
 >   - Beginners: 
->     - Try to use a sophisticated Provider/Model like Anthropic with Claude Sonnet 3.x Models to get best results
+>     - Try to use a sophisticated Provider/Model like Anthropic with Claude Sonnet 4.x Models to get best results
 >     - Explanation: The System Prompt currently implemented in bolt.diy cant cover the best performance for all providers and models out there. So it works better with some models, then other, even if the models itself are perfect for >programming
 >     - Future: Planned is a Plugin/Extentions-Library so there can be different System Prompts for different Models, which will help to get better results
 
